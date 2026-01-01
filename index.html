@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipe Rack Manager - Construction Site Material Management</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'status-empty': '#10b981',
+                        'status-no-space': '#ef4444',
+                        'status-not-ready': '#6b7280',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen font-['Inter']">
+
+    <!-- App Container -->
+    <div id="app" class="min-h-screen">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-50">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto mb-4">
+                </div>
+                <p class="text-white text-lg">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login-page" class="hidden">
+            <!-- Will be populated by JavaScript -->
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="main-dashboard" class="hidden">
+            <!-- Will be populated by JavaScript -->
+        </div>
+
+        <!-- Unit Detail View -->
+        <div id="unit-detail-view" class="hidden">
+            <!-- Will be populated by JavaScript -->
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="admin-panel" class="hidden">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modals Container -->
+    <div id="modals-container"></div>
+
+    <!-- Firebase SDKs (v10.x) -->
+    <script type="module" src="./src/firebase.js"></script>
+    <script type="module" src="./src/auth.js"></script>
+    <script type="module" src="./src/firestore.js"></script>
+    <script type="module" src="./src/components/LoginPage.js"></script>
+    <script type="module" src="./src/components/MainDashboard.js"></script>
+    <script type="module" src="./src/components/UnitDetailView.js"></script>
+    <script type="module" src="./src/components/AdminPanel.js"></script>
+    <script type="module" src="./app.js"></script>
+</body>
+
+</html>

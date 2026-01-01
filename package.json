@@ -1,0 +1,9 @@
+{
+  "name": "pipe-rack-manager",
+  "version": "1.0.0",
+  "description": "Construction Site Material & Pipe Rack Manager",
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Open index.html in your browser' && start index.html"
+  }
+}
