@@ -15,7 +15,7 @@ export function renderMainDashboard(userData) {
     dashboard.innerHTML = `
         <!-- Header -->
         <header class="glass border-b border-white/10">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
@@ -67,7 +67,7 @@ export function renderMainDashboard(userData) {
         </header>
 
         <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="mb-6">
                 <h2 class="text-2xl font-bold text-white mb-2">Units Overview</h2>
                 <p class="text-gray-400">Select a unit to view and manage pipe racks</p>

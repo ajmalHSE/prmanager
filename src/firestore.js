@@ -154,11 +154,13 @@ export async function createPipeRack(unitId, rackId, status = 'empty') {
  * @param {string} rackId 
  * @param {string} status - New status
  * @param {string} userId - User making the update
+ * @param {string} statusNote - Optional note explaining the status
  */
-export async function updatePipeRackStatus(unitId, rackId, status, userId) {
+export async function updatePipeRackStatus(unitId, rackId, status, userId, statusNote = '') {
     try {
         await updateDoc(doc(db, 'units', unitId, 'pipeRacks', rackId), {
             status: status,
+            statusNote: statusNote,
             lastUpdated: new Date().toISOString(),
             updatedBy: userId
         });

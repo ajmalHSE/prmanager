@@ -12,11 +12,11 @@ let currentUnit = null;
 
 // Status configuration with colors
 const STATUS_CONFIG = {
-    'empty': { label: 'Empty', color: '#10b981', icon: '✓' },
-    '50-full': { label: '50% Full', color: '#f59e0b', icon: '◐' },
-    '75-full': { label: '75% Full', color: '#f97316', icon: '◕' },
-    'no-space': { label: 'No Space', color: '#ef4444', icon: '✕' },
-    'ground-not-ready': { label: 'Ground Not Ready', color: '#6b7280', icon: '⚠' }
+    'empty': { label: 'Empty', color: '#10b981', icon: '✓', textColor: 'text-white' },
+    '50-full': { label: '50% Full', color: '#f59e0b', icon: '◐', textColor: 'text-white' },
+    '75-full': { label: '75% Full', color: '#f97316', icon: '◕', textColor: 'text-white' },
+    'no-space': { label: 'No Space', color: '#ef4444', icon: '✕', textColor: 'text-white' },
+    'ground-not-ready': { label: 'Ground Not Ready', color: '#facc15', icon: '⚠', textColor: 'text-black' }
 };
 
 export async function showUnitDetailView(unitId, userData) {
@@ -45,7 +45,7 @@ export async function showUnitDetailView(unitId, userData) {
     detailView.innerHTML = `
         <!-- Header -->
         <header class="glass border-b border-white/10">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <button id="back-btn" class="p-2 rounded-lg hover:bg-white/10 transition text-white">
@@ -80,7 +80,7 @@ export async function showUnitDetailView(unitId, userData) {
         </header>
 
         <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <main class="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="mb-3">
                 <h2 class="text-xl font-bold text-white mb-1">Pipe Racks</h2>
                 <p class="text-sm text-gray-400">
@@ -118,6 +118,7 @@ export async function showUnitDetailView(unitId, userData) {
 
     // Subscribe to real-time pipe racks updates
     racksUnsubscribe = subscribeToPipeRacks(unitId, (racks) => {
+        console.log(`📦 Racks for ${unitId}:`, racks); // DEBUG LOG
         renderRacksGrid(racks);
     });
 
@@ -148,6 +149,7 @@ function renderRacksGrid(racks) {
         const config = STATUS_CONFIG[rack.status] || STATUS_CONFIG['empty'];
         const lastUpdated = new Date(rack.lastUpdated);
         const canEdit = currentUserData.role !== 'guest';
+        const note = rack.statusNote || '';
 
         return `
             <div class="glass rounded-lg overflow-hidden card-hover ${canEdit ? 'cursor-pointer' : 'cursor-default'} shadow-lg" 
@@ -167,17 +169,22 @@ function renderRacksGrid(racks) {
                     ` : ''}
                 </div>
 
-                <!-- Status Block - Cute and compact -->
-                <div class="h-16 flex items-center justify-center transition-all duration-300" 
+                <!-- Status Block - Optimized for notes -->
+                <div class="h-[80px] flex flex-col items-center justify-center transition-all duration-300 px-2 ${config.textColor}" 
                      style="background: ${config.color}">
-                    <div class="text-center text-white">
-                        <div class="text-xl mb-0.5">${config.icon}</div>
+                    <div class="text-center">
+                        <div class="text-xl leading-none mb-1">${config.icon}</div>
                         <div class="text-[9px] font-bold uppercase tracking-wider">${config.label}</div>
                     </div>
+                    ${note ? `
+                        <div class="mt-1.5 text-[8px] leading-[1.2] font-semibold italic text-center w-full break-words opacity-90">
+                            ${note}
+                        </div>
+                    ` : ''}
                 </div>
 
                 <!-- Footer - Minimal -->
-                <div class="px-1.5 py-1 bg-black/30 text-[8px] text-gray-400 text-center">
+                <div class="px-1.5 py-1 bg-black/30 text-[8px] text-gray-400 text-center relative">
                     <div class="truncate">${lastUpdated.toLocaleDateString([], { month: 'short', day: 'numeric' })} ${lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                 </div>
             </div>
@@ -191,7 +198,8 @@ function renderRacksGrid(racks) {
                 card.addEventListener('click', () => {
                     const rackId = card.dataset.rackId;
                     const currentStatus = card.dataset.status;
-                    showStatusModal(rackId, currentStatus);
+                    const rackData = racks.find(r => r.id === rackId);
+                    showStatusModal(rackId, currentStatus, rackData?.statusNote || '');
                 });
             }
         });
@@ -214,59 +222,96 @@ function renderRacksGrid(racks) {
     }
 }
 
-function showStatusModal(rackId, currentStatus) {
+function showStatusModal(rackId, currentStatus, initialNote = '') {
     const modalsContainer = document.getElementById('modals-container');
+    let selectedStatus = currentStatus;
 
     modalsContainer.innerHTML = `
         <div class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 p-4">
             <div class="glass rounded-2xl p-6 w-full max-w-md fade-in">
                 <h3 class="text-xl font-bold text-white mb-4">Update Status: ${rackId}</h3>
                 
-                <div class="space-y-3">
+                <div class="space-y-2 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
                     ${Object.entries(STATUS_CONFIG).map(([key, config]) => `
-                        <button class="w-full flex items-center gap-4 p-4 rounded-lg border-2 transition ${key === currentStatus ? 'border-white/30 bg-white/10' : 'border-white/10 hover:border-white/20 hover:bg-white/5'
+                        <button class="status-btn w-full flex items-center gap-3 p-3 rounded-lg border-2 transition ${key === selectedStatus ? 'border-white/30 bg-white/10' : 'border-white/10 hover:border-white/20 hover:bg-white/5'
         }" data-status="${key}">
-                            <div class="w-8 h-8 rounded" style="background: ${config.color}"></div>
+                            <div class="w-6 h-6 rounded" style="background: ${config.color}"></div>
                             <div class="flex-1 text-left">
-                                <div class="text-white font-semibold">${config.label}</div>
+                                <div class="text-white text-sm font-semibold">${config.label}</div>
                             </div>
-                            ${key === currentStatus ? '<div class="text-green-400">✓ Current</div>' : ''}
+                            <div class="check-indicator ${key === selectedStatus ? '' : 'hidden'} text-green-400 text-xs whitespace-nowrap">✓ Selected</div>
                         </button>
                     `).join('')}
                 </div>
 
+                <!-- Note Field -->
+                <div id="note-container" class="mt-4 ${selectedStatus === 'ground-not-ready' ? '' : 'hidden'}">
+                    <label class="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wider">Reason for Ground Not Ready</label>
+                    <textarea id="status-note" class="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-blue-500 transition-all placeholder-gray-600" 
+                              placeholder="Type the reason here (e.g., obstruction, material in ground...)" rows="3">${initialNote}</textarea>
+                </div>
+
                 <div class="mt-6 flex gap-3">
-                    <button id="cancel-status-btn" class="flex-1 btn-secondary py-2 rounded-lg">Cancel</button>
+                    <button id="cancel-status-btn" class="flex-1 btn-secondary py-2 rounded-lg text-sm">Cancel</button>
+                    <button id="save-status-btn" class="flex-1 btn-primary py-2 rounded-lg text-sm shadow-lg shadow-blue-500/20">Save Changes</button>
                 </div>
             </div>
         </div>
     `;
 
-    // Event listeners
-    const statusButtons = modalsContainer.querySelectorAll('[data-status]');
+    const statusButtons = modalsContainer.querySelectorAll('.status-btn');
+    const noteContainer = modalsContainer.querySelector('#note-container');
+    const noteInput = modalsContainer.querySelector('#status-note');
+
     statusButtons.forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const newStatus = btn.dataset.status;
-            if (newStatus !== currentStatus) {
-                try {
-                    await updatePipeRackStatus(currentUnitId, rackId, newStatus, currentUserData.uid);
-                    closeModal();
-                } catch (error) {
-                    alert('Error updating status: ' + error.message);
-                }
+        btn.addEventListener('click', () => {
+            selectedStatus = btn.dataset.status;
+
+            // Update UI selection
+            statusButtons.forEach(b => {
+                const isSelected = b.dataset.status === selectedStatus;
+                b.classList.toggle('border-white/30', isSelected);
+                b.classList.toggle('bg-white/10', isSelected);
+                b.classList.toggle('border-white/10', !isSelected);
+                b.classList.toggle('bg-white/5', !isSelected);
+                b.querySelector('.check-indicator').classList.toggle('hidden', !isSelected);
+            });
+
+            // Toggle note field
+            if (selectedStatus === 'ground-not-ready') {
+                noteContainer.classList.remove('hidden');
             } else {
-                closeModal();
+                noteContainer.classList.add('hidden');
             }
         });
     });
 
-    const cancelBtn = document.getElementById('cancel-status-btn');
-    cancelBtn.addEventListener('click', closeModal);
+    modalsContainer.querySelector('#cancel-status-btn').addEventListener('click', closeModal);
+
+    modalsContainer.querySelector('#save-status-btn').addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        const noteValue = selectedStatus === 'ground-not-ready' ? noteInput.value.trim() : '';
+
+        console.log('📝 Saving status change:', { rackId, status: selectedStatus, note: noteValue }); // DEBUG LOG
+
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-pulse">Saving...</span>';
+
+            await updatePipeRackStatus(currentUnitId, rackId, selectedStatus, currentUserData.uid, noteValue);
+            closeModal();
+        } catch (error) {
+            console.error('❌ Error saving status:', error);
+            alert('Error updating status: ' + error.message);
+            btn.disabled = false;
+            btn.innerHTML = 'Save Changes';
+        }
+    });
 }
 
 function closeModal() {
     const modalsContainer = document.getElementById('modals-container');
-    modalsContainer.innerHTML = '';
+    if (modalsContainer) modalsContainer.innerHTML = '';
 }
 
 async function handleAddRack() {
