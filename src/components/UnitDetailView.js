@@ -148,7 +148,7 @@ function renderRacksGrid(racks) {
     grid.innerHTML = racks.map(rack => {
         const config = STATUS_CONFIG[rack.status] || STATUS_CONFIG['empty'];
         const lastUpdated = new Date(rack.lastUpdated);
-        const canEdit = currentUserData.role !== 'guest';
+        const canEdit = currentUserData.role !== 'guest' && currentUserData.role !== 'monitor';
         const note = rack.statusNote || '';
 
         return `
@@ -192,7 +192,7 @@ function renderRacksGrid(racks) {
     }).join('');
 
     // Add click handlers for status update
-    if (currentUserData.role !== 'guest') {
+    if (currentUserData.role !== 'guest' && currentUserData.role !== 'monitor') {
         grid.querySelectorAll('[data-rack-id]').forEach(card => {
             if (!card.classList.contains('delete-rack-btn')) {
                 card.addEventListener('click', () => {

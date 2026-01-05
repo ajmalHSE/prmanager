@@ -53,6 +53,7 @@ export function showAdminPanel(userData) {
                             <select id="user-role" required 
                                     class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
                                 <option value="user">User</option>
+                                <option value="monitor">Monitor (Read Only)</option>
                                 <option value="admin">Admin</option>
                             </select>
                         </div>
@@ -61,7 +62,7 @@ export function showAdminPanel(userData) {
                             <label class="block text-sm font-medium text-gray-300 mb-2">Assigned Unit (for Users)</label>
                             <select id="user-assigned-unit" 
                                     class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
-                                <option value="">None (Admin only)</option>
+                                <option value="">None (Admin/Monitor only)</option>
                             </select>
                         </div>
                         
@@ -111,7 +112,7 @@ function updateUnitsDropdown() {
     if (!select) return;
 
     const currentValue = select.value;
-    select.innerHTML = '<option value="">None (Admin only)</option>';
+    select.innerHTML = '<option value="">None (Admin/Monitor only)</option>';
 
     availableUnits.forEach(unit => {
         const option = document.createElement('option');
@@ -251,6 +252,7 @@ function showEditUserModal(user) {
                     <label class="block text-sm font-medium text-gray-300 mb-2">Role</label>
                     <select id="edit-user-role" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white">
                         <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                        <option value="monitor" ${user.role === 'monitor' ? 'selected' : ''}>Monitor</option>
                         <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
                     </select>
                 </div>
